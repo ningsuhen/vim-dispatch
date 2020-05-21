@@ -85,8 +85,17 @@ function! s:output(ch, output, ...) abort
   else
     " vim
     let waiting = s:waiting[ch_info(a:ch).id]
-    let output = split(a:output, "\n", 1)
+    let output = split(a:output, "\n",1)
   endif
+  let temp_output = deepcopy(output)
+  let output = []
+  for item in temp_output
+    if len(item) > 1024
+      let output += split(item,'.\{1024}\zs')
+    else
+      let output += [item]
+    endif
+  endfor
   let request = waiting.request
   call writefile(output, request.file, 'ab')
   let waiting.output[-1] .= remove(output, 0)
